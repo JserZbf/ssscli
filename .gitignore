@@ -15,5 +15,3 @@
 # umi
 .umi
 .umi-production
-*.tar
-ioc-fe-release
