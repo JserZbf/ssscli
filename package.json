@@ -1,0 +1,70 @@
+{
+  "private": true,
+  "name": "ems",
+  "version": "0.0.1",
+  "description": "",
+  "scripts": {
+    "start": "cross-env PROXY_TARGET=dev umi dev",
+    "build": "cross-env umi build",
+    "eslint": "eslint --ext .js --ext .jsx ./src",
+    "lint-staged:js": "eslint --ext .js,.jsx,.ts,.tsx ",
+    "prettier": "prettier -c --write \"src/**/*\"",
+    "precommit": "npm run prettier"
+  },
+  "repository": {
+    "type": "git"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@ant-design/compatible": "^1.0.5",
+    "@ant-design/icons": "^4.3.0",
+    "@antv/layout": "^0.1.10",
+    "ant-design-pro": "^2.3.2",
+    "antd": "^4.10.0",
+    "dva": "^2.6.0-beta.6",
+    "fr-generator": "^0.5.0",
+    "isomorphic-fetch": "^2.2.1",
+    "js-cookie": "^2.2.1",
+    "lodash-es": "^4.17.15",
+    "moment": "^2.27.0",
+    "prop-types": "^15.7.2",
+    "query-string": "^6.13.8",
+    "react": "^16.8.6",
+    "react-document-title": "^2.0.3",
+    "react-dom": "^16.8.6",
+    "react-router": "^5.2.0",
+    "react-router-dom": "^5.2.0",
+    "umi": "^2.7.7",
+    "url-search-params": "^1.1.0",
+    "use-debounce": "^3.4.3"
+  },
+  "devDependencies": {
+    "babel-eslint": "^10.0.3",
+    "cross-env": "^5.2.1",
+    "eslint-config-cool": "^0.3.3",
+    "husky": "^7.0.1",
+    "pre-commit": "^1.2.2",
+    "react-test-renderer": "^16.7.0",
+    "umi-plugin-build-version": "^1.0.4",
+    "umi-plugin-react": "^1.8.4",
+    "eslint": "^7.1.0",
+    "prettier": "^2.0.1",
+    "lint-staged": "^10.0.0"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "eslint"
+    }
+  },
+  "lint-staged": {
+    "**/*.less": "stylelint --syntax less",
+    "**/*.{js,jsx,ts,tsx}": "npm run lint-staged:js",
+    "**/*.{js,jsx,tsx,ts,less,md,json}": [
+      "prettier --write"
+    ]
+  },
+  "engines": {
+    "node": ">=8.0.0"
+  }
+}
