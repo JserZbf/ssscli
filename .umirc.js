@@ -44,7 +44,7 @@ export default {
           ],
         },
         headScripts: [
-         // header里面插入script脚本
+          // header里面插入script脚本
         ].filter((i) => i),
         links: [{ rel: 'stylesheet', href: '//at.alicdn.com/t/font_2681856_xb9arcks7y.css' }],
       },
