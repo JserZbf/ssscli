@@ -26,14 +26,14 @@ class Layout extends Component {
     componentDidCatch(error, info) {
         console.error('Layout Catched Error:', error, info);
         this.setState({
-          errorMessage: error.message || 'Layout Catched Error with no message.',
+            errorMessage: error.message || 'Layout Catched Error with no message.',
         });
-     }
+    }
 
     render() {
-       
+
         const { errorMessage } = this.state;
-        const { children,location:{pathname} } = this.props;
+        const { children, location: { pathname } } = this.props;
         if (errorMessage) {
             return (
                 <Error
@@ -51,19 +51,19 @@ class Layout extends Component {
         return (
             <ConfigProvider locale={zhCN}>
                 <DocumentTitle title="新能源系统">
-                {pathname==='/login'?
-                <div>{children}</div>:
-                <div className={styles.container}>
-                <TopBar />
-                <div className={styles.content}>
-                    <div className={styles.contentLeft}>
-                        <Category />
-                    </div>
-                    <div className={styles.contentRight}>{children}</div>
-                </div>
-                </div>
-            }
-                  
+                    {pathname === '/login' ?
+                        <div>{children}</div> :
+                        <div className={styles.container}>
+                            <TopBar />
+                            <div className={styles.content}>
+                                <div className={styles.contentLeft}>
+                                    <Category />
+                                </div>
+                                <div className={styles.contentRight}>{children}</div>
+                            </div>
+                        </div>
+                    }
+
                 </DocumentTitle>
             </ConfigProvider>
         );

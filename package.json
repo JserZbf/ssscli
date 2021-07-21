@@ -2,7 +2,7 @@
   "private": true,
   "name": "ems",
   "version": "0.0.1",
-  "description": "",
+  "description": "ssscli",
   "scripts": {
     "start": "cross-env PROXY_TARGET=dev umi dev",
     "build": "cross-env umi build",
@@ -12,9 +12,10 @@
     "precommit": "npm run prettier"
   },
   "repository": {
-    "type": "git"
+    "type": "git",
+    "url":""
   },
-  "author": "",
+  "author": "zbf",
   "license": "ISC",
   "dependencies": {
     "@ant-design/compatible": "^1.0.5",

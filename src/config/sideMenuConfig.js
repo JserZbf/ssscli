@@ -6,7 +6,7 @@ const SideMenuConfig = [
     path: pathConfig.homePage1.path,
     id: pathConfig.homePage1.path,
     icon: pathConfig.homePage1.icon,
-    subMenus: [
+    children: [
       {
         name: pathConfig.router1.name,
         path: pathConfig.router1.path,

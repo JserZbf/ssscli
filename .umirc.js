@@ -46,7 +46,7 @@ export default {
         headScripts: [
           // header里面插入script脚本
         ].filter((i) => i),
-        links: [{ rel: 'stylesheet', href: '//at.alicdn.com/t/font_2681856_xb9arcks7y.css' }],
+        links: [{ rel: 'stylesheet', href: '//at.alicdn.com/t/font_2681856_0b19j5gwny89.css' }],
       },
     ],
     'umi-plugin-build-version',
