@@ -13,7 +13,10 @@
   },
   "repository": {
     "type": "git",
-    "url":""
+    "url": ""
+  },
+  "bin": {
+    "sss-cli": "./bin/ssscli_test"
   },
   "author": "zbf",
   "license": "ISC",

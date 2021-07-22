@@ -1,0 +1,33 @@
+#! /usr/bin/env node
+
+// 配置可执行命令
+const program = require('commander');
+const chalk = require('chalk');
+// 解析用户执行命令参数
+
+program.version(`sss-cli @${require('../package.json').version}`).usage('<command> [option]');
+
+program
+  .command('create <app-name>')
+  .description('create new app')
+  // 配置可以根据自己的需求去配置
+  .option('-f --force', 'overwrite')
+  .action((name, cmd) => {
+    require('../lib/create')(name, cmd);
+  });
+
+program
+  .command('config [value]')
+  .description('inspect')
+  .option('-g --get <path>', 'get value from option ')
+  .option('-s --set <path> <value>', 'set value from option ')
+  .option('-d --delete <path> ', 'delete value from option ')
+  .action((value, cmd) => {
+    console.log(value, cmd);
+  });
+program.on('--help', () => {
+  console.log();
+  console.log(`Run ${chalk.cyan(`sss-cli <command> --help show detail`)}`);
+});
+
+program.parse(process.argv);
