@@ -1,1 +1,3 @@
-export default window.g_history;
+import { history} from 'umi'
+
+export default history

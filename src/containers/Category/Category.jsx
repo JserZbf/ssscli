@@ -1,11 +1,14 @@
 import React, { Component } from 'react';
-import { connect } from 'dva';
+import { connect ,routerRedux} from 'dva';
 import { withRouter } from 'react-router';
-import { routerRedux } from 'dva/router';
 import Iconfont from 'components/Iconfont';
-import { Icon as LegacyIcon } from '@ant-design/compatible';
+import {
+    MenuUnfoldOutlined,
+    MenuFoldOutlined,
+} from '@ant-design/icons';
 import { Menu, Badge } from 'antd';
 import styles from './Category.less';
+
 
 const { SubMenu } = Menu;
 
@@ -74,14 +77,14 @@ class Category extends Component {
     }
 
     componentDidMount() {
-        
+
         const {
             location: { pathname },
             sideMenus,
             saveUserInfo,
         } = this.props;
         saveUserInfo({
-            userInfo:JSON.parse(localStorage.getItem('menu') || '{}')
+            userInfo: JSON.parse(localStorage.getItem('menu') || '{}')
         })
         setTimeout(() => {
             this.setState({ openKeys: this.getOpenKeys(sideMenus || []) });
@@ -162,7 +165,7 @@ class Category extends Component {
                         });
                     }}
                 >
-                    <LegacyIcon className={styles.icon} type={collapsed ? 'menu-unfold' : 'menu-fold'} />
+                    {collapsed ? <MenuUnfoldOutlined className={styles.icon} /> : <MenuFoldOutlined className={styles.icon} />}
                 </div>
                 <Menu
                     selectedKeys={this.getSelectedKeys({

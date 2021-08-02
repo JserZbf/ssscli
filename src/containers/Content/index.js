@@ -6,8 +6,9 @@ import { Link } from 'react-router-dom';
 import pathConfig from 'config/pathConfig';
 import { keys } from 'lodash-es';
 import { Spin, Breadcrumb } from 'antd';
-import { matchPath } from 'dva/router';
 import styles from './index.less';
+
+const { matchPath } = require('dva/router')
 
 const Content = ({
   className,

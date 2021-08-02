@@ -1,12 +1,12 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'dva';
+import { connect,routerRedux } from 'dva';
 import { Dropdown, Menu, Modal, Tooltip, Button } from 'antd';
 import { QuestionCircleOutlined } from '@ant-design/icons';
 import { withRouter } from 'react-router';
-import { routerRedux } from 'dva/router';
 import pathConfig from 'config/pathConfig';
 import styles from './index.less';
+
 
 @withRouter
 @connect(

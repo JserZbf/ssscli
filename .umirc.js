@@ -1,5 +1,4 @@
 import { resolve } from 'path';
-
 export const TARGETS = {
   dev: {
     ems: 'http://172.17.40.154:9500',
@@ -8,8 +7,6 @@ export const TARGETS = {
 const TARGET = TARGETS[process.env.PROXY_TARGET] || {};
 // ref: https://umijs.org/config/
 export default {
-  treeShaking: true,
-  base: '/ems/',
   proxy: {
     context: (pathname, req) => {
       return req.headers['x-requested-with'] === 'XMLHttpRequest';
@@ -24,33 +21,20 @@ export default {
     // 需要转发的API前缀
   },
   hash: true,
-  plugins: [
-    // ref: https://umijs.org/plugin/umi-plugin-react.html
-    [
-      'umi-plugin-react',
-      {
-        antd: true,
-        dva: true,
-        dynamicImport: { webpackChunkName: true },
-        title: 'ems',
-        dll: true,
-        routes: {
-          exclude: [
-            /models\//,
-            /services\//,
-            /model\.(t|j)sx?$/,
-            /service\.(t|j)sx?$/,
-            /components\//,
-          ],
-        },
-        headScripts: [
-          // header里面插入script脚本
-        ].filter((i) => i),
-        links: [{ rel: 'stylesheet', href: '//at.alicdn.com/t/font_2681856_0b19j5gwny89.css' }],
-      },
-    ],
-    'umi-plugin-build-version',
-  ],
+  antd: {},
+  dva: {
+    disableModelsReExport: true,
+    lazyLoad: true,
+  },
+  dynamicImport: {
+    loading: 'components/Spin',
+  },
+  title: 'ems',
+  headScripts: [
+    // header里面插入script脚本
+  ].filter((i) => i),
+  links: [{ rel: 'stylesheet', href: '//at.alicdn.com/t/font_2681856_f7w2a3gzeb.css' },
+],
   chainWebpack(config) {
     config.resolve.modules.add(resolve(__dirname, './src'));
     config.module
