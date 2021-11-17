@@ -1,7 +1,7 @@
-import { assign, isEmpty, mapValues, isNil, keys, get, omitBy } from 'lodash-es';
+import { assign, isEmpty, mapValues, isNil, keys, omitBy } from 'lodash-es';
 import fetch from 'isomorphic-fetch';
 import URLSearchParams from 'url-search-params';
-import { message } from 'antd';
+import { message, notification } from 'antd';
 import history from 'common/history';
 import replacePlaceholder from 'common/replacePlaceholder';
 
@@ -14,7 +14,7 @@ const codeMessage = {
   204: '删除数据成功。',
   400: '发出的请求有错误，服务器没有进行新建或修改数据的操作。',
   401: '用户没有权限（令牌、用户名、密码错误）。',
-  403: '用户得到授权，但是访问是被禁止的。',
+  403: '用户授权过期请重新登录。',
   404: '发出的请求针对的是不存在的记录，服务器没有进行操作。',
   406: '请求的格式不可得。',
   410: '请求的资源被永久删除，且不会再得到的。',
@@ -41,6 +41,7 @@ export class Http {
     };
 
     this.notLogin = () => {
+      localStorage.removeItem('Authorization');
       const redirectUrl =
         window.location.origin +
         encodeURIComponent(
@@ -65,14 +66,17 @@ export class Http {
         loadingState: false,
         loadingStateMessage: undefined,
       };
+
       const cfg = Object.assign(defaultRequestConfig, config);
       const options = assign(
         { credentials: 'include' },
         url.startsWith('http') ? { mode: 'cors' } : null,
         init,
       );
+      const token = await this.getToken();
       options.headers = {
         'x-requested-with': 'XMLHttpRequest',
+        Authorization: token && `Bearer  ${token}`,
         ...(options.headers || {}),
         ...(headers || {}),
       };
@@ -95,11 +99,28 @@ export class Http {
         data: omitBy(result.data, isNil),
       };
     };
+    this.fileNameFromHeader = (disposition) => {
+        let result = null;
+        if (disposition && /filename=.*/gi.test(disposition)) {
+          result = disposition.match(/filename=.*/gi);
+          return decodeURI(result[0].split('=')[1]);
+        }
+        return null;
+      };
   }
 
   checkStatus(response) {
     if (response.status >= 200 && response.status < 300) {
       return response;
+    }
+    if (response.status === 401) {
+      this.notLogin();
+      return response;
+    }
+    if (codeMessage[response.status]) {
+      notification.error({
+        message: codeMessage[response.status],
+      });
     }
     const error = new Error(response.statusText || codeMessage[response.status]);
     error.status = response.status;
@@ -107,9 +128,18 @@ export class Http {
     throw error;
   }
 
+  isFormData = (v) => {
+    return Object.prototype.toString.call(v) === '[object FormData]';
+  };
+
   checkErrCode(dataObj) {
+    //   if (dataObj.code != 200)
+    //   { HttpCodeCheckout(JSON.stringify(dataObj.code),dataObj.msg)
+
+    // }
     const { code: lErrCode, data, msg } = dataObj;
     const code = !isNil(lErrCode) ? lErrCode : 200;
+
     if (!code || code === this.defaultConfig.correctErrCode) {
       return;
     }
@@ -119,15 +149,18 @@ export class Http {
       this.notLogin();
       return;
     }
+
     const error = new Error(msg);
     error.code = code;
     error.data = data;
+
     throw error;
   }
 
   parseResult(data) {
-    this.checkErrCode(data);
-    return this.defaultConfig.parseResult ? this.defaultConfig.parseResult(data) : data;
+    return data;
+    // this.checkErrCode(data);
+    // return this.defaultConfig.parseResult ? this.defaultConfig.parseResult(data) : data;
   }
 
   async parseJSON(response) {
@@ -136,6 +169,13 @@ export class Http {
 
   async processResult(response) {
     this.checkStatus(response);
+    const contentType = response.headers.get('content-type');
+    if (contentType && contentType.includes('application/vnd.ms-excel')) {
+      return {
+        fileName: this.fileNameFromHeader(response.headers.get('content-disposition')),
+        datas: response.blob(),
+      };
+    }
     const returnResponse = await this.parseJSON(response);
     return this.parseResult(returnResponse, response.url);
   }
@@ -152,21 +192,16 @@ export class Http {
   }
 
   async getToken() {
-    if (!this.token) {
-      // 本地token
-      this.token = localStorage.getItem('sss_token');
-    }
-    return this.token;
+    return localStorage.getItem('Authorization');
   }
 
   async get(getApi, getData = {}, customeHeaders = {}, config = {}) {
     const { api, data } = this.replaceRESTfulPlaceholder(getApi, getData);
-    const token = await this.getToken();
     const headers = {
       'Content-Type': 'application/json; charset=utf-8',
-      SSS_TOKEN: token,
       ...customeHeaders,
     };
+
     let query;
     if (isEmpty(data)) {
       query = '';
@@ -186,20 +221,24 @@ export class Http {
       });
       query = `?${searchParams.toString()}`;
     }
-    return this.request(`${api}${query}`, {}, headers, config);
+    return this.request(`${getApi}${query}`, {}, headers, config);
   }
 
   async post(postApi, postData = {}, customeHeaders = {}, config = {}) {
-    const { api, data } = this.replaceRESTfulPlaceholder(postApi, postData);
-    const token = await this.getToken();
-    const headers = {
-      'Content-Type': 'application/json; charset=utf-8',
-      SSS_TOKEN: token,
-      ...customeHeaders,
-    };
-    const formBody = JSON.stringify(data);
+    let headers;
+    if (this.isFormData(postData)) {
+      headers = {
+        ...customeHeaders,
+      };
+    } else {
+      headers = {
+        'Content-Type': 'application/json; charset=utf-8',
+        ...customeHeaders,
+      };
+    }
+    const formBody = this.isFormData(postData) ? postData : JSON.stringify(postData);
     return this.request(
-      api,
+      postApi,
       {
         method: 'POST',
         headers,
@@ -211,16 +250,14 @@ export class Http {
   }
 
   async delete(postApi, postData = {}, customeHeaders = {}, config = {}) {
-    const { api, data } = this.replaceRESTfulPlaceholder(postApi, postData);
-    const token = await this.getToken();
+    // const { api, data } = this.replaceRESTfulPlaceholder(postApi, postData);
     const headers = {
       'Content-Type': 'application/json; charset=utf-8',
-      SSS_TOKEN: token,
       ...customeHeaders,
     };
-    const formBody = JSON.stringify(data);
+    const formBody = JSON.stringify(postData);
     return this.request(
-      api,
+      postApi,
       {
         method: 'DELETE',
         headers,
@@ -233,10 +270,8 @@ export class Http {
 
   async put(postApi, postData = {}, customeHeaders = {}, config = {}) {
     const { api, data } = this.replaceRESTfulPlaceholder(postApi, postData);
-    const token = await this.getToken();
     const headers = {
       'Content-Type': 'application/json; charset=utf-8',
-      SSS_TOKEN: token,
       ...customeHeaders,
     };
     const formBody = JSON.stringify(data);
@@ -254,9 +289,7 @@ export class Http {
 
   async form(formApi, formData, customeHeaders = {}, config = {}) {
     const { api, data } = this.replaceRESTfulPlaceholder(formApi, formData);
-    const token = await this.getToken();
     const headers = {
-      SSS_TOKEN: token,
       ...customeHeaders,
     };
     return this.request(
